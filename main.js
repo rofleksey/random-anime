@@ -7,7 +7,8 @@ const axios = require('axios');
 const HttpsProxyAgent = require('https-proxy-agent');
 
 const rootUrl = 'https://twist.moe/';
-const proxyUrl = 'http://147.161.169.57:80';
+const proxyUrl = 'http://51.158.123.35:9999';
+// const proxyUrl = 'http://147.161.169.57:80';
 const userAgent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.46 Safari/537.36';
 const proxyAgent = new HttpsProxyAgent(proxyUrl);
 const instance = axios.create({
