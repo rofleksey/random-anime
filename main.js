@@ -2,10 +2,8 @@
 const crypto = require('crypto');
 const fs = require('fs');
 const { exec } = require("child_process");
-const StreamProgressBar = require('stream-progressbar');
 
 const axios = require('axios');
-const ProgressBar = require('progress')
 const HttpsProxyAgent = require('https-proxy-agent');
 
 const rootUrl = 'https://twist.moe/';
@@ -108,16 +106,9 @@ async function downloadFile(url) {
     const writer = fs.createWriteStream('video.mp4');
     return new Promise((res, rej) => {
         data
-            // .pipe(StreamProgressBar('Downloading... [:bar] :percent :etas', {
-            //     width: 20,
-            //     complete: '=',
-            //     incomplete: ' ',
-            //     renderThrottle: 0,
-            //     total: parseInt(totalLength)
-            // }))
-            .pipe(writer)
             .on('error', rej)
             .on('end', res)
+            .pipe(writer)
     });
 }
 
