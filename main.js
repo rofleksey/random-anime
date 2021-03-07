@@ -102,7 +102,8 @@ async function downloadFile(url) {
         },
         httpsAgent: proxyAgent,
     });
-    // const totalLength = headers['content-length']
+    console.log(headers);
+    const totalLength = headers['content-length'];
     const writer = fs.createWriteStream('video.mp4');
     return new Promise((res, rej) => {
         data
