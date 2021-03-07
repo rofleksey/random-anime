@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 const crypto = require('crypto');
 const fs = require('fs');
-const { exec } = require("child_process");
+const { spawn } = require("child_process");
 
 const axios = require('axios');
 const HttpsProxyAgent = require('https-proxy-agent');
 
 const rootUrl = 'https://twist.moe/';
-const proxyUrl = 'http://34.92.50.186:3128';
+const proxyUrl = 'http://147.161.169.57:80';
 const userAgent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.46 Safari/537.36';
 const proxyAgent = new HttpsProxyAgent(proxyUrl);
 const instance = axios.create({
@@ -77,16 +77,16 @@ function bytesToKey(salt) {
 
 async function launchExternal(cmd) {
     return new Promise((res, rej) => {
-        exec(cmd, (error, stdout, stderr) => {
-            if (error) {
-                rej(error);
-                return;
+        const child = spawn('sh', ['-c', cmd]);
+        child.stdout.pipe(process.stdout);
+        child.stderr.pipe(process.stderr);
+        child.on('error', rej);
+        child.on('exit', (code) => {
+            if (code !== 0) {
+                rej(new Error(`${cmd} exited with code ${code}`));
+                return
             }
-            if (stderr) {
-                console.log(stdout);
-                console.error(stderr);
-            }
-            res();
+            res(code);
         });
     })
 }
@@ -135,7 +135,7 @@ async function main() {
             const decodedSource = decodeSource(source);
             const realSource = `https://cdn.twist.moe${decodedSource}`
             console.log(realSource);
-            await launchExternal(`wget -O video.mp4 --user-agent "${userAgent}" --referer "${rootUrl}" "${realSource}"`);
+            await launchExternal(`wget --progress=bar:force:noscroll -q --show-progress -O video.mp4 --user-agent "${userAgent}" --referer "${rootUrl}" -e use_proxy=yes -e http_proxy="${proxyUrl}" -e https_proxy="${proxyUrl}" "${realSource}"`);
             console.log('Launching video...');
             await launchExternal(`ffplay -fs -autoexit video.mp4`);
             console.log('OK!');
