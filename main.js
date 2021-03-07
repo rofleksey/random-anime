@@ -84,7 +84,7 @@ async function launchExternal(cmd) {
             }
             if (stderr) {
                 console.log(stdout);
-                console.error(stderr);
+                console.log(stderr);
             }
             res();
         });
@@ -93,7 +93,7 @@ async function launchExternal(cmd) {
 
 async function downloadFile(url) {
     console.log('Starting download...')
-    const { data, headers } = await axios.get(url, {
+    const {data, headers} = await axios.get(url, {
         responseType: 'stream',
         timeout: 30000,
         headers: {
@@ -101,7 +101,7 @@ async function downloadFile(url) {
             'Referer': rootUrl
         },
         httpsAgent: proxyAgent,
-    })
+    });
     // const totalLength = headers['content-length']
     const writer = fs.createWriteStream('video.mp4');
     return new Promise((res, rej) => {
@@ -143,13 +143,13 @@ async function main() {
             console.log('OK!');
         } catch (e) {
             if (e.response) {
-                console.error(e.response.data);
-                console.error(e.response.status);
-                console.error(e.response.headers);
+                console.log(e.response.data);
+                console.log(e.response.status);
+                console.log(e.response.headers);
             } else if (e.message) {
-                console.error(`Error: ${e.message}`);
+                console.log(`Error: ${e.message}`);
             } else {
-                console.error(e);
+                console.log(e);
             }
             await delay(10000);
         }
@@ -161,25 +161,25 @@ process.on('exit', code => {
 });
 
 process.on('SIGTERM', signal => {
-    console.error(`Process received a SIGTERM signal`);
+    console.log(`Process received a SIGTERM signal`);
     process.exit(0);
 });
 
 process.on('SIGINT', signal => {
-    console.error(`Process has been interrupted`);
+    console.log(`Process has been interrupted`);
     process.exit(0);
 });
 
 process.on('uncaughtException', err => {
-    console.error(`Uncaught exception: ${err.message}`);
+    console.log(`Uncaught exception: ${err.message}`);
     process.exit(1);
 });
 
 process.on('unhandledRejection', (reason, promise) => {
-    console.error('Unhandled rejection at ', promise, `reason: ${reason}`);
+    console.log('Unhandled rejection at ', promise, `reason: ${reason}`);
     process.exit(1);
 });
 
 main()
     .then(() => console.log('WTF'))
-    .catch((e) => console.error(e));
+    .catch((e) => console.log(e));
