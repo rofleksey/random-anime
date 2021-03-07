@@ -84,7 +84,7 @@ async function launchExternal(cmd) {
             }
             if (stderr) {
                 console.log(stdout);
-                console.log(stderr);
+                console.error(stderr);
             }
             res();
         });
@@ -102,8 +102,7 @@ async function downloadFile(url) {
         },
         httpsAgent: proxyAgent,
     });
-    console.log(headers);
-    const totalLength = headers['content-length'];
+    // const totalLength = headers['content-length']
     const writer = fs.createWriteStream('video.mp4');
     return new Promise((res, rej) => {
         data
@@ -133,24 +132,22 @@ async function main() {
             const episodeNum = curEpisode.number;
             console.log(`Picked episode #${episodeNum}`);
             const source = curEpisode.source;
-            console.log(source);
             const decodedSource = decodeSource(source);
-            console.log(decodedSource);
             const realSource = `https://cdn.twist.moe${decodedSource}`
             console.log(realSource);
-            await downloadFile(realSource);
+            await launchExternal(`wget -O video.mp4 --user-agent "${userAgent}" --referer "${rootUrl}" "${realSource}"`);
             console.log('Launching video...');
             await launchExternal(`ffplay -fs -autoexit video.mp4`);
             console.log('OK!');
         } catch (e) {
             if (e.response) {
-                console.log(e.response.data);
-                console.log(e.response.status);
-                console.log(e.response.headers);
+                console.error(e.response.data);
+                console.error(e.response.status);
+                console.error(e.response.headers);
             } else if (e.message) {
-                console.log(`Error: ${e.message}`);
+                console.error(`Error: ${e.message}`);
             } else {
-                console.log(e);
+                console.error(e);
             }
             await delay(10000);
         }
@@ -162,25 +159,25 @@ process.on('exit', code => {
 });
 
 process.on('SIGTERM', signal => {
-    console.log(`Process received a SIGTERM signal`);
+    console.error(`Process received a SIGTERM signal`);
     process.exit(0);
 });
 
 process.on('SIGINT', signal => {
-    console.log(`Process has been interrupted`);
+    console.error(`Process has been interrupted`);
     process.exit(0);
 });
 
 process.on('uncaughtException', err => {
-    console.log(`Uncaught exception: ${err.message}`);
+    console.error(`Uncaught exception: ${err.message}`);
     process.exit(1);
 });
 
 process.on('unhandledRejection', (reason, promise) => {
-    console.log('Unhandled rejection at ', promise, `reason: ${reason}`);
+    console.error('Unhandled rejection at ', promise, `reason: ${reason}`);
     process.exit(1);
 });
 
 main()
     .then(() => console.log('WTF'))
-    .catch((e) => console.log(e));
+    .catch((e) => console.error(e));
